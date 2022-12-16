@@ -1,0 +1,128 @@
+/**********************************************************************
+ *
+ *  procedure main
+ *
+ **********************************************************************/
+procedure main
+    window @1,1 to @30,100 title 'main'
+    //parameters
+    //returning
+    local
+
+    	lf-username        pic x(15)
+    	lf-password        pic x(15)
+
+    no-hide
+
+    box @1,1 to @15,26 title 'Login Page' 
+
+    display "Username" @4,6 background
+    accept  lf-username @5,6
+  	validations
+
+        if (lf-username <> "user01")
+
+        	message "Username not found"
+        	reenter
+
+        endif
+
+    end-validations
+
+    display "Password" @6,6 background
+    accept lf-password @7,6 blank
+    validations
+
+        if (lf-password <> "P@ss")
+            
+            message "Incorrect Password"
+
+            reenter
+        endif
+
+    end-validations 
+
+    message "Login Successful"
+    do dashboard parameter lf-username lf-password
+end-procedure  // end-procedure main
+
+
+/**********************************************************************
+ *
+ *  procedure this
+ *
+ **********************************************************************/
+procedure dashboard
+    window @1,1 to @30,100 title 'Dashboard'
+    parameters
+    	lp-username type string 
+    	lp-password type string
+    //returning
+    local
+    	lf-first-quarter       pic 999.99  
+    	lf-second-quarter      pic 999.99
+    	lf-third-quarter       pic 999.99
+    	lf-fourth-quarter      pic 999.99
+    	lf-total-grade         pic 999.99
+    	lf-average             pic 999.99
+        lf-date-today          type date
+        lf-date-day            type date
+        lf-date-year           type date
+        lf-day-name            pic x(10)
+        //lf-julian-to-date     
+
+
+    no-hide 
+        set lf-date-today = today()
+        set lf-date-day = day(lf-date-today)
+        set lf-date-year = year(lf-date-today)
+        set lf-day-name = day-name(lf-date-today)
+
+        display concat("Today's date: " str-concat(lf-day-name) " - " 
+            month-name(lf-date-today) " " str(lf-date-day) ", " str(lf-date-year)) @1,2 italic background
+
+        display "Please enter your quarterly average" @3,5 bold background
+
+        accept lf-first-quarter @5,15
+            title "First quarter"  
+
+        accept lf-second-quarter @7,15 
+            title "Second quarter" 
+
+        accept lf-third-quarter @9,15
+            title "Third quarter"
+
+        accept lf-fourth-quarter @11,15
+            title "Fourth quarter"
+
+        
+        confirm 
+            prompt 'Really?'
+        confirmed
+
+            if lf-first-quarter and lf-second-quarter and lf-third-quarter and lf-fourth-quarter != 0
+                set lf-total-grade = lf-first-quarter + lf-second-quarter + lf-third-quarter + lf-fourth-quarter
+                set lf-average = lf-total-grade / 4
+                message 'Hi ' rtrim(lp-username) ',' 'your general average is ' lf-average
+    
+            elseif lf-first-quarter and lf-second-quarter and lf-third-quarter != 0
+                set lf-total-grade = lf-first-quarter + lf-second-quarter + lf-third-quarter
+                set lf-average = lf-total-grade / 3
+                message 'Hi ' rtrim(lp-username) ',' 'your general average is ' lf-average
+    
+            elseif lf-first-quarter and lf-second-quarter != 0
+                set lf-total-grade = lf-first-quarter + lf-second-quarter
+                set lf-average = lf-total-grade / 2
+                message 'Hi ' rtrim(lp-username) ',' ' your general average is ' lf-average
+            endif
+    
+    
+            if lf-average >= 75
+                message-box ("You've Passed!")
+            else
+                message-box ("You Failed")
+            endif
+        end-confirm
+
+end-procedure  // end-procedure this
+

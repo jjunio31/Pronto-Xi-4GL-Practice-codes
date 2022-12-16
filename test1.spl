@@ -1,0 +1,102 @@
+//test1.spl
+
+field z-global-message type string
+
+
+
+
+/**********************************************************************
+ *
+ *  procedure main
+ *
+ **********************************************************************/
+procedure main
+    window @1,1 to @30,100 title 'main'
+    //parameters
+        
+    //returning
+
+        
+
+    local
+    	lf-message type string 
+        lf-fname type string
+        lf-lname type string
+        lf-age type number
+        
+
+    no-hide
+
+    set lf-message = "main"
+    set lf-fname = "Jerick"
+    set lf-lname = "Junio"
+   
+
+    message lf-message
+
+    //set z-global-message = "global message"
+
+	do say-hello parameter lf-fname lf-lname 
+    
+
+end-procedure  // end-procedure main
+
+/**********************************************************************
+ *
+ *  procedure say-hello
+ *
+ **********************************************************************/
+procedure say-hello
+    window @1,1 to @30,100 title 'say-hello'
+    parameters
+
+       lp-fname type string
+       lp-lname type string
+     
+    returning
+
+        lr-age type number
+
+
+    local
+    	lf-hello-message type string
+
+
+    no-hide
+    set lr-age = 26
+    set lf-hello-message = "Hello World"
+    set z-global-message = "global message inside say-hello"
+    
+	//message 'this is a "z-global-message": ' z-global-message
+
+    message 'My First Name is '  '"' rtrim(lp-fname) '"' ' and my last name is ' '"' rtrim(lp-lname) '"'
+
+    if (lp-fname = "Jerick")
+        
+        do return-something parameter lr-age
+
+    else
+
+        message "No info found"
+
+    endif
+    
+
+
+end-procedure  // end-procedure say-hello
+
+
+/**********************************************************************
+ *
+ *  procedure this
+ *
+ **********************************************************************/
+procedure return-something
+    window @1,1 to @30,100 title 'this'
+    parameters
+        lp-age type number
+    //returning
+    //local
+    no-hide
+    message lp-age
+end-procedure  // end-procedure this

@@ -1,0 +1,264 @@
+object tmp-user-details
+    type is isam
+    file is "tmp-user-details-A"
+    record is
+        tmp-username pic x(25)
+
+        tmp-first-name pic x(25)
+        tmp-last-name pic x(25)
+        tmp-age pic 999
+        tmp-email pic x(25)        
+        tmp-password pic x(25)
+        
+    end-record
+    key tmp-username tmp-password unique
+
+mode md-new-user
+    prompt "New User"
+    help "This button adds a new user"
+
+
+/**********************************************************************
+ *
+ *  procedure main
+ *
+ **********************************************************************/
+procedure main
+    window @1,1 to @30,100 title 'main'
+    //parameters
+    //returning
+   
+    //no-hide
+        
+    open tmp-user-details
+    on error
+        open tmp-user-details create 
+    end-on
+        
+    do user-list
+    //do login-page
+        
+end-procedure  // end-procedure this
+
+/**********************************************************************
+ *
+ *  screen login-page
+ *
+ **********************************************************************/
+screen login-page
+    window @1,1 to @10,47 title 'Login'
+    //parameters
+    //returning
+    local
+        //lf-username pic x(25)
+        //lf-password pic x(25)
+        lf-username like tmp-username
+        lf-password like tmp-password
+    //no-hide
+    allow entry
+    display "Login Page" @3,20 bold background
+
+    accept lf-username @5,15
+        title "Username"
+
+    accept lf-password @7,15 blank
+        title "Password" 
+
+    validation
+        get tmp-user-details
+        key lf-username lf-password
+
+            on error
+                message "Username and Password do not match"
+                reenter lf-username
+                //reenter lf-password
+            else
+                do user-list
+                exit
+            end-on
+
+    end-validation
+
+end-screen  // end-screen login-page
+
+
+/**********************************************************************
+ *
+ *  screen add-data
+ *
+ **********************************************************************/ 
+screen add-data
+    window @1,1 to @20,45 title 'add-data'
+    //parameters
+    //returning
+     local
+
+        /*
+        lf-tmp-first-name pic x(25)
+        lf-tmp-last-name pic x(25)
+        lf-tmp-email pic x(25)
+        lf-tmp-age pic 999
+        lf-tmp-username pic x(25)
+        lf-tmp-password pic x(25)
+        lf-tmp-counter pic 9
+        //lf-count-email pic 9
+        //lf-check-email type string
+        */
+
+        lf-tmp-first-name like tmp-first-name
+        lf-tmp-last-name like tmp-last-name
+        lf-tmp-age like tmp-age
+        lf-tmp-email like tmp-email
+        lf-tmp-password like tmp-password
+        lf-tmp-username like tmp-username
+        lf-tmp-counter pic 9
+
+    no-hide
+    
+    allow entry
+
+    set lf-tmp-counter = 0
+
+    box @1,1 to @20,45 title 'Registration Form' 
+    display "Register" @3,20 bold background
+
+    accept lf-tmp-first-name @5,15
+        title "Firstname"
+
+    accept lf-tmp-last-name @7,15
+        title "Lastname"
+
+    accept lf-tmp-age @9,15
+        title "Age"
+        validation
+            if lf-tmp-age < 18
+               message "Age is not eligible. User must be 18 or older"
+               reenter
+            end-if
+        end-validation
+
+    accept  lf-tmp-email @11,15
+        title "Email"
+
+        validation
+            select * from tmp-user-details
+            where lf-tmp-email = tmp-email
+
+            detail
+                
+                while lf-tmp-counter = 0
+                    if lf-tmp-email = tmp-email
+                        then
+                            message 'Email ' '"' rtrim(lf-tmp-email)'"' ' is already in use.' ' Please use another one.'
+                            set lf-tmp-counter += 1
+                            //message lf-tmp-counter
+                    end-if
+                end-while
+                
+            end-select
+
+                if lf-tmp-counter = 1
+                    then
+                        set lf-tmp-counter = 0
+                        //message lf-tmp-counter
+                        reenter
+                end-if
+            
+            end-validation
+        
+
+    accept lf-tmp-username @13,15
+        title "Username"
+        validation
+            get tmp-user-details key lf-tmp-username
+                on error
+                    else
+                    message 'Username ' '"' rtrim(lf-tmp-username)'"' ' is already in use.' ' Please use another one.'
+                    reenter 
+                end-on
+        end-validation
+        
+
+    accept lf-tmp-password @15,15
+        title "Password" 
+
+    confirm
+    confirmed
+
+        set tmp-first-name = lf-tmp-first-name
+        set tmp-last-name = lf-tmp-last-name
+        set tmp-age = lf-tmp-age
+        set tmp-email = lf-tmp-email
+        set tmp-username = lf-tmp-username
+        set tmp-password = lf-tmp-password
+        insert tmp-user-details
+        on error 
+                //message "Username already exist" tmp-username
+        end-on
+        refresh
+        exit
+        
+    end-confirm
+
+end-screen  // end-screen add-data 
+
+/**********************************************************************
+ *
+ *  screen user-list
+ *
+ **********************************************************************/
+screen user-list
+    window @1,1 to @30,100 title 'user-list'
+    //parameters
+    //returning
+    //local
+        
+    no-hide
+    allow search entry correct remove md-new-user
+    data-grid occurs 28
+
+    select * from tmp-user-details
+    detail
+
+        accept tmp-first-name    @2,20
+            title "First Name"
+        accept tmp-last-name     @2,30
+            title "Last Name"
+        accept tmp-age           @2,40
+            title "Age"
+        validation
+            /*if tmp-age < 18
+                message-box  "Age is not eligible"
+                reenter
+            end-if*/
+            if tmp-age < 18
+                message-box "Age is not eligible. User must be 18 or older"
+                                    title "User's age"
+                                    //message-buttons MSG_BOX_YES_NO
+                                    message-buttons MSG_BOX_CANCEL
+                                    default MSG_BOX_CANCEL
+                                    icon MSG_BOX_WARNING
+                                    reenter
+            end-if
+             
+
+        end-validation
+        accept tmp-email         @2,50
+            title "Email"
+        display tmp-username     @2,60
+            title "Username"
+        display tmp-password     @2,70
+            title "Password"
+
+    confirm auto
+    confirmed
+        switch screen-mode() 
+            case md-new-user
+                do add-data
+        end-switch
+    end-confirm
+
+end-screen  // end-screen user-list
+
+
+
